@@ -1,0 +1,428 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Hub V2</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1120;color:#f1f5ff;font-family:Arial,sans-serif;padding-bottom:85px}
+header{padding:22px;background:linear-gradient(135deg,#17345d,#10192a)}
+header h1{margin:0;color:#76aaff}
+header p{color:#a9bddb;font-size:13px}
+main{padding:15px;max-width:750px;margin:auto}
+.section{display:none}
+.section.active{display:block}
+.card{background:#152139;border:1px solid #273955;border-radius:15px;padding:16px;margin-bottom:14px}
+.hero{background:linear-gradient(135deg,#2658a0,#172e50);padding:20px;border-radius:18px;margin-bottom:15px}
+h2{font-size:20px;margin:0 0 14px}
+h3{margin:0 0 10px}
+p{line-height:1.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#152139;border:1px solid #273955;padding:15px;border-radius:14px}
+.stat strong{font-size:25px;color:#6ca4ff;display:block}
+.stat small{color:#9eb0ca}
+button{border:0;border-radius:9px;padding:11px 13px;background:#397cf0;color:white;font-weight:bold;margin-top:7px;cursor:pointer}
+.secondary{background:#293a56}
+.danger{background:#a73c4b}
+input,textarea,select{width:100%;padding:12px;margin:7px 0;background:#0c1628;color:white;border:1px solid #30435f;border-radius:9px}
+textarea{min-height:110px;resize:vertical}
+.item{padding:12px 0;border-bottom:1px solid #273955}
+.item:last-child{border-bottom:0}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.small{font-size:12px;color:#9eb0ca}
+.done{text-decoration:line-through;opacity:.5}
+.option{display:block;width:100%;text-align:left;background:#263853;margin:8px 0}
+.option:disabled{opacity:.8}
+.nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#111b2c;border-top:1px solid #283a56;padding:8px 2px;z-index:10}
+.nav button{background:transparent;color:#9aacc5;font-size:10px;margin:0;padding:7px 3px}
+.nav button.active{color:#75a7ff}
+.note{white-space:pre-wrap;word-break:break-word}
+.bar{height:9px;background:#263751;border-radius:20px;overflow:hidden;margin:8px 0}
+.bar div{height:100%;background:#4bd6a0;width:0}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🎓 Student Hub</h1>
+<p>Your learning space • Learn smarter, grow stronger</p>
+</header>
+
+<main>
+
+<div class="section active" id="home">
+<div class="hero">
+<h2>Welcome, Student 👋</h2>
+<p>Every day you learn is a step towards your future.</p>
+</div>
+
+<div class="grid">
+<div class="stat"><strong id="taskTotal">0</strong><small>Study tasks</small></div>
+<div class="stat"><strong id="taskDone">0</strong><small>Completed</small></div>
+<div class="stat"><strong id="quizTotal">0</strong><small>Quizzes taken</small></div>
+<div class="stat"><strong id="average">0%</strong><small>Quiz average</small></div>
+</div>
+
+<div class="card">
+<h3>📈 Task progress</h3>
+<p id="progressText">0% completed</p>
+<div class="bar"><div id="progressBar"></div></div>
+</div>
+
+<div class="card">
+<h3>📚 Quick Access</h3>
+<button onclick="showPage('subjects')">Subjects</button>
+<button class="secondary" onclick="showPage('planner')">Open planner</button>
+<button class="secondary" onclick="showPage('quiz')">Take a quiz</button>
+<button class="secondary" onclick="showPage('marks')">Record marks</button>
+</div>
+
+<div class="card">
+<h3>💡 Today's reminder</h3>
+<p id="tip">Small daily efforts create great results.</p>
+<button class="secondary" onclick="changeTip()">New reminder</button>
+</div>
+</div>
+
+<div class="section" id="subjects">
+<h2>📚 My Subjects</h2>
+<div id="subjectCards"></div>
+<div class="card" id="subjectDetail" style="display:none"></div>
+</div>
+
+<div class="section" id="notes">
+<h2>📝 Notes</h2>
+<div class="card">
+<input id="noteTitle" placeholder="Note title">
+<select id="noteSubject">
+<option>Mathematics</option><option>Physics</option><option>Economics</option><option>General</option>
+</select>
+<textarea id="noteText" placeholder="Write your notes here..."></textarea>
+<button onclick="addNote()">Save note</button>
+</div>
+<div id="noteList"></div>
+</div>
+
+<div class="section" id="planner">
+<h2>📅 Study Planner</h2>
+<div class="card">
+<input id="taskTitle" placeholder="Study task">
+<select id="taskSubject">
+<option>Mathematics</option><option>Physics</option><option>Economics</option><option>General</option>
+</select>
+<input id="taskDate" type="date">
+<button onclick="addTask()">Add task</button>
+</div>
+<div id="taskList"></div>
+</div>
+
+<div class="section" id="quiz">
+<h2>🧠 Quiz Center</h2>
+<div class="card">
+<select id="quizChoice">
+<option value="All">All subjects</option>
+<option value="Mathematics">Mathematics</option>
+<option value="Physics">Physics</option>
+<option value="Economics">Economics</option>
+</select>
+<button onclick="startQuiz()">Start quiz</button>
+</div>
+<div id="quizBox"></div>
+<div class="card">
+<h3>📊 Quiz History</h3>
+<div id="quizHistory"></div>
+<button class="danger" onclick="clearQuizHistory()">Clear history</button>
+</div>
+</div>
+
+<div class="section" id="marks">
+<h2>📊 Academic Marks</h2>
+<div class="card">
+<h3>Record a result</h3>
+<select id="markSubject">
+<option>Mathematics</option><option>Physics</option><option>Economics</option>
+</select>
+<input id="examName" placeholder="Exam / test name">
+<div class="row">
+<input id="markScored" type="number" placeholder="Marks scored">
+<input id="markOutOf" type="number" placeholder="Out of">
+</div>
+<button onclick="addMark()">Save result</button>
+</div>
+
+<div class="grid">
+<div class="stat"><strong id="markCount">0</strong><small>Results recorded</small></div>
+<div class="stat"><strong id="markAvg">0%</strong><small>Overall average</small></div>
+</div>
+
+<div class="card">
+<h3>Subject averages</h3>
+<div id="subjectAverages"></div>
+</div>
+<div id="markList"></div>
+</div>
+
+</main>
+
+<nav class="nav">
+<button class="active" onclick="showPage('home',this)">🏠<br>Home</button>
+<button onclick="showPage('subjects',this)">📚<br>Subjects</button>
+<button onclick="showPage('notes',this)">📝<br>Notes</button>
+<button onclick="showPage('planner',this)">📅<br>Planner</button>
+<button onclick="showPage('quiz',this)">🧠<br>Quiz</button>
+<button onclick="showPage('marks',this)">📊<br>Marks</button>
+</nav>
+
+<script>
+const getData=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const putData=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+let notes=getData("sh_notes",[]);
+let tasks=getData("sh_tasks",[]);
+let history=getData("sh_quiz_history",[]);
+let marks=getData("sh_marks",[]);
+
+const subjectData={
+ Mathematics:["Algebra","Functions","Trigonometry","Differentiation","Integration","Vectors","Complex Numbers","Probability","Statistics","Matrices"],
+ Physics:["Mechanics","Waves","Electricity","Magnetism","Thermal Physics","Optics","Atomic Physics","Radioactivity"],
+ Economics:["Demand and Supply","Elasticity","Market Structures","National Income","Inflation","Unemployment","Economic Growth","Public Finance","International Trade"]
+};
+
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function showPage(id,btn){
+ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ else{
+  const index={home:0,subjects:1,notes:2,planner:3,quiz:4,marks:5}[id];
+  document.querySelectorAll(".nav button")[index]?.classList.add("active");
+ }
+ window.scrollTo(0,0);
+ renderAll();
+}
+
+function renderSubjects(){
+ document.getElementById("subjectCards").innerHTML=Object.entries(subjectData).map(([s,t])=>`
+ <div class="card">
+ <h3>${s}</h3>
+ <p class="small">${t.length} study topics</p>
+ <button onclick="openSubject('${s}')">Explore topics</button>
+ </div>`).join("");
+}
+
+function openSubject(name){
+ const d=document.getElementById("subjectDetail");
+ d.style.display="block";
+ d.innerHTML=`<h3>📖 ${name}</h3>
+ <p class="small">Study topics</p>
+ ${subjectData[name].map(t=>`<div class="item">${esc(t)}</div>`).join("")}`;
+ d.scrollIntoView({behavior:"smooth"});
+}
+
+function addNote(){
+ let title=document.getElementById("noteTitle").value.trim();
+ let text=document.getElementById("noteText").value.trim();
+ if(!title||!text)return alert("Enter a title and your note.");
+ notes.unshift({title,subject:document.getElementById("noteSubject").value,text});
+ putData("sh_notes",notes);
+ document.getElementById("noteTitle").value="";
+ document.getElementById("noteText").value="";
+ renderNotes();
+}
+
+function deleteNote(i){
+ if(confirm("Delete this note?")){
+ notes.splice(i,1);putData("sh_notes",notes);renderNotes();
+ }
+}
+
+function renderNotes(){
+ document.getElementById("noteList").innerHTML=notes.length?notes.map((n,i)=>`
+ <div class="card">
+ <h3>${esc(n.title)}</h3><p class="small">${esc(n.subject)}</p>
+ <p class="note">${esc(n.text)}</p>
+ <button class="danger" onclick="deleteNote(${i})">Delete</button>
+ </div>`).join(""):"<p class='small'>No notes saved yet.</p>";
+}
+
+function addTask(){
+ let title=document.getElementById("taskTitle").value.trim();
+ if(!title)return alert("Enter a task.");
+ tasks.unshift({title,subject:document.getElementById("taskSubject").value,date:document.getElementById("taskDate").value,done:false});
+ putData("sh_tasks",tasks);
+ document.getElementById("taskTitle").value="";
+ renderTasks();
+}
+
+function toggleTask(i){
+ tasks[i].done=!tasks[i].done;putData("sh_tasks",tasks);renderTasks();
+}
+function deleteTask(i){
+ tasks.splice(i,1);putData("sh_tasks",tasks);renderTasks();
+}
+
+function renderTasks(){
+ document.getElementById("taskList").innerHTML=tasks.length?tasks.map((t,i)=>`
+ <div class="task">
+ <div class="${t.done?'done':''}">
+ <strong>${esc(t.title)}</strong><br>
+ <small>${esc(t.subject)} • ${esc(t.date||"No date")}</small>
+ </div>
+ <button class="secondary" onclick="toggleTask(${i})">${t.done?"Undo":"Done"}</button>
+ <button class="danger" onclick="deleteTask(${i})">X</button>
+ </div>`).join(""):"<p class='small'>No tasks yet.</p>";
+}
+
+const questions=[
+{subject:"Mathematics",q:"Differentiate x³.",o:["x²","3x²","3x","x³"],a:1,e:"The derivative of x³ is 3x²."},
+{subject:"Mathematics",q:"Evaluate sin 30°.",o:["1","√3/2","1/2","0"],a:2,e:"sin 30° = 1/2."},
+{subject:"Mathematics",q:"Evaluate ∫2x dx.",o:["2x","x² + C","2","x + C"],a:1,e:"The integral is x² + C."},
+{subject:"Physics",q:"What is the SI unit of force?",o:["Joule","Watt","Newton","Pascal"],a:2,e:"Force is measured in Newtons."},
+{subject:"Physics",q:"Which quantity is measured in watts?",o:["Energy","Power","Force","Pressure"],a:1,e:"Power is measured in watts."},
+{subject:"Physics",q:"Approximate speed of light in vacuum?",o:["300 m/s","3×10⁶ m/s","3×10⁸ m/s","1500 m/s"],a:2,e:"Approximately 3×10⁸ m/s."},
+{subject:"Economics",q:"What is inflation?",o:["General rise in prices","Fall in population","Increase in exports only","Fall in production only"],a:0,e:"Inflation is a sustained rise in the general price level."},
+{subject:"Economics",q:"When price falls, quantity demanded usually?",o:["Falls","Rises","Remains zero","Supply disappears"],a:1,e:"Quantity demanded usually rises when price falls, other things equal."},
+{subject:"Economics",q:"What is opportunity cost?",o:["Money printed","Next best alternative forgone","Total profit","A tax"],a:1,e:"Opportunity cost is the value of the next best alternative forgone."}
+];
+
+let quizSet=[],qi=0,score=0,answered=false;
+
+function startQuiz(){
+ let chosen=document.getElementById("quizChoice").value;
+ quizSet=chosen==="All"?questions.slice():questions.filter(q=>q.subject===chosen);
+ for(let i=quizSet.length-1;i>0;i--){
+ let j=Math.floor(Math.random()*(i+1));
+ [quizSet[i],quizSet[j]]=[quizSet[j],quizSet[i]];
+ }
+ qi=0;score=0;loadQuestion();
+}
+
+function loadQuestion(){
+ const box=document.getElementById("quizBox");
+ if(qi>=quizSet.length){
+ let pct=Math.round(score/quizSet.length*100);
+ history.unshift({date:new Date().toLocaleDateString(),score,total:quizSet.length,pct});
+ putData("sh_quiz_history",history);
+ box.innerHTML=`<div class="card"><h2>Quiz complete 🎉</h2>
+ <h3>${score}/${quizSet.length} correct</h3><p>${pct}%</p>
+ <button onclick="startQuiz()">Try again</button></div>`;
+ renderHistory();renderHome();return;
+ }
+ answered=false;
+ let q=quizSet[qi];
+ box.innerHTML=`<div class="card">
+ <p class="small">${esc(q.subject)} • Question ${qi+1} of ${quizSet.length}</p>
+ <h3>${esc(q.q)}</h3>
+ <div id="quizOptions">${q.o.map((o,i)=>`<button class="option" onclick="answerQ(${i})">${esc(o)}</button>`).join("")}</div>
+ <p id="quizFeedback"></p>
+ <button id="quizNext" style="display:none" onclick="nextQ()">Next →</button>
+ </div>`;
+}
+
+function answerQ(i){
+ if(answered)return;
+ answered=true;
+ let q=quizSet[qi];
+ let correct=i===q.a;
+ if(correct)score++;
+ document.querySelectorAll("#quizOptions button").forEach((b,j)=>{
+ b.disabled=true;
+ if(j===q.a)b.style.background="#197a56";
+ else if(j===i)b.style.background="#a83e50";
+ });
+ document.getElementById("quizFeedback").textContent=(correct?"Correct! ":"Incorrect. ")+q.e;
+ document.getElementById("quizNext").style.display="inline-block";
+}
+
+function nextQ(){qi++;loadQuestion();}
+
+function renderHistory(){
+ document.getElementById("quizHistory").innerHTML=history.length?history.slice(0,10).map(h=>`
+ <div class="item">${esc(h.date)} — <strong>${h.score}/${h.total} (${h.pct}%)</strong></div>`).join(""):"<p class='small'>No quizzes completed yet.</p>";
+}
+function clearQuizHistory(){
+ if(confirm("Clear all quiz history?")){
+ history=[];putData("sh_quiz_history",history);renderHistory();renderHome();
+ }
+}
+
+function addMark(){
+ let subject=document.getElementById("markSubject").value;
+ let exam=document.getElementById("examName").value.trim();
+ let scored=Number(document.getElementById("markScored").value);
+ let outOf=Number(document.getElementById("markOutOf").value);
+ if(!exam||document.getElementById("markScored").value===""||document.getElementById("markOutOf").value===""||outOf<=0||scored<0||scored>outOf){
+ return alert("Enter a valid exam name and marks.");
+ }
+ marks.unshift({subject,exam,scored,outOf,pct:Math.round(scored/outOf*100),date:new Date().toLocaleDateString()});
+ putData("sh_marks",marks);
+ document.getElementById("examName").value="";
+ document.getElementById("markScored").value="";
+ document.getElementById("markOutOf").value="";
+ renderMarks();
+}
+
+function deleteMark(i){
+ marks.splice(i,1);putData("sh_marks",marks);renderMarks();
+}
+
+function renderMarks(){
+ let average=marks.length?Math.round(marks.reduce((s,m)=>s+m.pct,0)/marks.length):0;
+ document.getElementById("markCount").textContent=marks.length;
+ document.getElementById("markAvg").textContent=average+"%";
+ document.getElementById("subjectAverages").innerHTML=Object.keys(subjectData).map(s=>{
+ let arr=marks.filter(m=>m.subject===s);
+ let avg=arr.length?Math.round(arr.reduce((a,b)=>a+b.pct,0)/arr.length):0;
+ return `<div class="item"><strong>${s}</strong><br><span class="small">${arr.length} results • ${avg}% average</span><div class="bar"><div style="width:${avg}%;background:#65a2ff"></div></div></div>`;
+ }).join("");
+ document.getElementById("markList").innerHTML=marks.length?marks.map((m,i)=>`
+ <div class="card">
+ <strong>${esc(m.exam)}</strong><p class="small">${esc(m.subject)} • ${esc(m.date)}</p>
+ <h3>${m.scored}/${m.outOf} — ${m.pct}%</h3>
+ <button class="danger" onclick="deleteMark(${i})">Delete</button>
+ </div>`).join(""):"<p class='small'>No marks recorded yet.</p>";
+}
+
+const tips=[
+"Consistency beats last-minute studying.",
+"Attempt a question before checking its solution.",
+"Review your mistakes; they are valuable lessons.",
+"Study in focused sessions with short breaks.",
+"Practice past papers to build confidence.",
+"Understand the concept, not just the formula.",
+"Small daily efforts lead to meaningful progress."
+];
+function changeTip(){document.getElementById("tip").textContent=tips[Math.floor(Math.random()*tips.length)]}
+
+function renderHome(){
+ let done=tasks.filter(t=>t.done).length;
+ let pct=tasks.length?Math.round(done/tasks.length*100):0;
+ let avg=history.length?Math.round(history.reduce((a,b)=>a+b.pct,0)/history.length):0;
+ document.getElementById("taskTotal").textContent=tasks.length;
+ document.getElementById("taskDone").textContent=done;
+ document.getElementById("quizTotal").textContent=history.length;
+ document.getElementById("average").textContent=avg+"%";
+ document.getElementById("progressText").textContent=pct+"% completed";
+ document.getElementById("progressBar").style.width=pct+"%";
+}
+
+function renderAll(){
+ renderHome();
+ renderTasks();
+ renderNotes();
+ renderHistory();
+ renderMarks();
+}
+
+renderSubjects();
+renderAll();
+</script>
+</body>
+</html>
